@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BaseLense App</title>
+
+  <style>
+    body {
+      margin:0;
+      font-family:Arial;
+      background:#0b0b0f;
+      color:white;
+    }
+
+    .nav {
+      display:flex;
+      justify-content:space-between;
+      padding:20px;
+    }
+
+    .logo {
+      font-size:24px;
+      font-weight:bold;
+      background:linear-gradient(90deg,#ff0080,#7928ca);
+      -webkit-background-clip:text;
+      color:transparent;
+    }
+
+    button {
+      padding:10px 20px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(90deg,#ff0080,#7928ca);
+      color:white;
+      cursor:pointer;
+      box-shadow:0 0 15px rgba(255,0,128,0.6);
+    }
+
+    .container {
+      text-align:center;
+      padding:20px;
+    }
+
+    input {
+      padding:12px;
+      width:70%;
+      border-radius:10px;
+      border:none;
+      margin:10px;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:15px;
+      margin-top:30px;
+      padding:20px;
+    }
+
+    .card {
+      padding:20px;
+      border-radius:15px;
+      background:linear-gradient(145deg,#111,#1a1a1a);
+      border:1px solid rgba(255,0,128,0.2);
+      box-shadow:0 0 20px rgba(255,0,128,0.3);
+      transition:0.3s;
+    }
+
+    .card:hover {
+      transform:translateY(-5px);
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="nav">
+  <div class="logo">BaseLense</div>
+  <button onclick="home()">Home</button>
+</div>
+
+<div class="container">
+
+<h2>Base Dashboard ⚡</h2>
+
+<div class="grid" id="dashboard">
+</div>
+
+<h2>Wallet Analyzer 🔍</h2>
+
+<input id="wallet" placeholder="Paste wallet address">
+<br>
+<button onclick="analyze()">Analyze</button>
+
+<div class="grid" id="results"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+
+<script>
+
+function home(){
+  window.location.href="index.html";
+}
+
+// DASHBOARD DATA
+async function loadDashboard(){
+  const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
+  const block = await provider.getBlockNumber();
+
+  document.getElementById("dashboard").innerHTML=`
+    <div class="card">⚡ Latest Block<br>${block}</div>
+    <div class="card">💰 Gas<br>~0.0002 ETH</div>
+    <div class="card">📊 Total Txns<br>100M+</div>
+  `;
+}
+
+loadDashboard();
+
+// ANALYZER
+async function analyze(){
+
+  const wallet=document.getElementById("wallet").value;
+
+  if(!wallet){
+    alert("Enter wallet");
+    return;
+  }
+
+  const provider=new ethers.JsonRpcProvider("https://mainnet.base.org");
+
+  const balance=await provider.getBalance(wallet);
+  const eth=(Number(balance)/1e18).toFixed(4);
+
+  const tx=await provider.getTransactionCount(wallet);
+
+  let score="Low ⚠️";
+  let tag="Newbie";
+
+  if(tx>50){score="Medium 👀";tag="Active";}
+  if(tx>300){score="High 🔥";tag="Pro";}
+  if(tx>1000){tag="Whale 🐋";}
+
+  document.getElementById("results").innerHTML=`
+    <div class="card">💰 Balance<br>${eth} ETH</div>
+    <div class="card">📊 Txns<br>${tx}</div>
+    <div class="card">🎯 Score<br>${score}</div>
+    <div class="card">🏷️ Tag<br>${tag}</div>
+  `;
+}
+
+</script>
+
+</body>
+</html>
