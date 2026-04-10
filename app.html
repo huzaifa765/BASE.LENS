@@ -1,152 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>BaseLense App</title>
+<title>BaseLense Pro</title>
 
-  <style>
-    body {
-      margin:0;
-      font-family:Arial;
-      background:#0b0b0f;
-      color:white;
-    }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    .nav {
-      display:flex;
-      justify-content:space-between;
-      padding:20px;
-    }
+<style>
+body{
+  margin:0;
+  font-family: 'Segoe UI';
+  color:white;
 
-    .logo {
-      font-size:24px;
-      font-weight:bold;
-      background:linear-gradient(90deg,#ff0080,#7928ca);
-      -webkit-background-clip:text;
-      color:transparent;
-    }
+  /* 🔥 GRADIENT BACKGROUND */
+  background: linear-gradient(135deg,#0f2027,#2c5364,#1c92d2);
+}
 
-    button {
-      padding:10px 20px;
-      border:none;
-      border-radius:10px;
-      background:linear-gradient(90deg,#ff0080,#7928ca);
-      color:white;
-      cursor:pointer;
-      box-shadow:0 0 15px rgba(255,0,128,0.6);
-    }
+.nav{
+  display:flex;
+  justify-content:space-between;
+  padding:20px 40px;
+}
 
-    .container {
-      text-align:center;
-      padding:20px;
-    }
+.logo{
+  font-size:24px;
+  font-weight:bold;
+}
 
-    input {
-      padding:12px;
-      width:70%;
-      border-radius:10px;
-      border:none;
-      margin:10px;
-    }
+.hero{
+  text-align:center;
+  padding:40px 20px;
+}
 
-    .grid {
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:15px;
-      margin-top:30px;
-      padding:20px;
-    }
+.hero input{
+  width:50%;
+  padding:15px;
+  border-radius:10px;
+  border:none;
+}
 
-    .card {
-      padding:20px;
-      border-radius:15px;
-      background:linear-gradient(145deg,#111,#1a1a1a);
-      border:1px solid rgba(255,0,128,0.2);
-      box-shadow:0 0 20px rgba(255,0,128,0.3);
-      transition:0.3s;
-    }
+.hero button{
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  background:#4da3ff;
+  color:white;
+  cursor:pointer;
+}
 
-    .card:hover {
-      transform:translateY(-5px);
-    }
+.section{
+  padding:30px 40px;
+}
 
-  </style>
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+
+.card{
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.big{
+  font-size:22px;
+  margin-top:10px;
+}
+
+canvas{
+  background: rgba(0,0,0,0.3);
+  border-radius:12px;
+  padding:10px;
+}
+
+/* 🔥 RESULT SECTION TOP PAR */
+.result-box{
+  margin-top:30px;
+}
+
+</style>
 </head>
 
 <body>
 
+<!-- NAV -->
 <div class="nav">
   <div class="logo">BaseLense</div>
-  <button onclick="home()">Home</button>
+
+  <select>
+    <option>Base 🔵</option>
+  </select>
 </div>
 
-<div class="container">
+<!-- HERO -->
+<div class="hero">
+  <h1>Base Chain Analytics</h1>
+  <input id="wallet" placeholder="Enter wallet address">
+  <br>
+  <button onclick="analyze()">Analyze Wallet</button>
 
-<h2>Base Dashboard ⚡</h2>
-
-<div class="grid" id="dashboard">
+  <!-- 🔥 RESULT AB YAHAN SHOW HOGA -->
+  <div class="grid result-box" id="results"></div>
 </div>
 
-<h2>Wallet Analyzer 🔍</h2>
+<!-- NETWORK -->
+<div class="section">
+  <h2>Network Overview</h2>
 
-<input id="wallet" placeholder="Paste wallet address">
-<br>
-<button onclick="analyze()">Analyze</button>
+  <div class="grid">
+    <div class="card">
+      Total Txns
+      <div class="big" id="txns">Loading...</div>
+    </div>
 
-<div class="grid" id="results"></div>
+    <div class="card">
+      Active Users
+      <div class="big">~1.2M</div>
+    </div>
 
+    <div class="card">
+      New Users
+      <div class="big">~75K/day</div>
+    </div>
+
+    <div class="card">
+      Latest Block
+      <div class="big" id="block">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHART -->
+<div class="section">
+  <h2>Network Activity</h2>
+  <canvas id="chart"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
 
 <script>
 
-function home(){
-  window.location.href="index.html";
-}
-
-// DASHBOARD DATA
-async function loadDashboard(){
+// NETWORK LOAD
+async function loadNetwork(){
   const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
+
   const block = await provider.getBlockNumber();
+  document.getElementById("block").innerText = block;
 
-  document.getElementById("dashboard").innerHTML=`
-    <div class="card">⚡ Latest Block<br>${block}</div>
-    <div class="card">💰 Gas<br>~0.0002 ETH</div>
-    <div class="card">📊 Total Txns<br>100M+</div>
-  `;
+  document.getElementById("txns").innerText = (block * 120).toLocaleString();
 }
+loadNetwork();
 
-loadDashboard();
+// CHART
+new Chart(document.getElementById('chart'), {
+  type: 'line',
+  data: {
+    labels: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+    datasets: [{
+      label: "Tx Activity",
+      data: [12000,25000,18000,40000,35000,50000,62000]
+    }]
+  }
+});
 
-// ANALYZER
+// ANALYZE
 async function analyze(){
 
-  const wallet=document.getElementById("wallet").value;
+  const wallet = document.getElementById("wallet").value;
+  if(!wallet) return alert("Enter wallet");
 
-  if(!wallet){
-    alert("Enter wallet");
-    return;
-  }
+  const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
 
-  const provider=new ethers.JsonRpcProvider("https://mainnet.base.org");
+  const balance = await provider.getBalance(wallet);
+  const tx = await provider.getTransactionCount(wallet);
 
-  const balance=await provider.getBalance(wallet);
-  const eth=(Number(balance)/1e18).toFixed(4);
-
-  const tx=await provider.getTransactionCount(wallet);
+  const eth = (Number(balance)/1e18).toFixed(4);
 
   let score="Low ⚠️";
-  let tag="Newbie";
+  let tag="New";
 
-  if(tx>50){score="Medium 👀";tag="Active";}
-  if(tx>300){score="High 🔥";tag="Pro";}
+  if(tx>100){score="Medium 👀";tag="Active";}
+  if(tx>500){score="High 🔥";tag="Pro";}
   if(tx>1000){tag="Whale 🐋";}
 
-  document.getElementById("results").innerHTML=`
-    <div class="card">💰 Balance<br>${eth} ETH</div>
-    <div class="card">📊 Txns<br>${tx}</div>
-    <div class="card">🎯 Score<br>${score}</div>
-    <div class="card">🏷️ Tag<br>${tag}</div>
+  document.getElementById("results").innerHTML = `
+    <div class="card">Balance<div class="big">${eth} ETH</div></div>
+    <div class="card">Transactions<div class="big">${tx}</div></div>
+    <div class="card">Score<div class="big">${score}</div></div>
+    <div class="card">Wallet Type<div class="big">${tag}</div></div>
   `;
 }
 
