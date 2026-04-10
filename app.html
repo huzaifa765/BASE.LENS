@@ -8,11 +8,17 @@
 <style>
 body{
   margin:0;
-  font-family: 'Segoe UI';
+  font-family:'Segoe UI';
   color:white;
+  background: linear-gradient(-45deg, #ff0080, #7928ca, #1c92d2, #00c6ff);
+  background-size: 400% 400%;
+  animation: gradientMove 10s ease infinite;
+}
 
-  /* 🔥 GRADIENT BACKGROUND */
-  background: linear-gradient(135deg,#0f2027,#2c5364,#1c92d2);
+@keyframes gradientMove {
+  0% {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100% {background-position:0% 50%;}
 }
 
 .nav{
@@ -32,20 +38,26 @@ body{
 }
 
 .hero input{
-  width:50%;
-  padding:15px;
-  border-radius:10px;
+  width:55%;
+  padding:16px;
+  border-radius:12px;
   border:none;
+  outline:none;
+  font-size:15px;
+  background: rgba(255,255,255,0.1);
+  color:white;
+  backdrop-filter: blur(10px);
 }
 
 .hero button{
-  padding:12px 20px;
+  padding:14px 24px;
   border:none;
-  border-radius:10px;
-  margin-top:10px;
-  background:#4da3ff;
+  border-radius:12px;
+  margin-top:12px;
+  background: linear-gradient(90deg,#ff0080,#7928ca);
   color:white;
   cursor:pointer;
+  box-shadow:0 0 20px rgba(255,0,128,0.6);
 }
 
 .section{
@@ -60,10 +72,16 @@ body{
 
 .card{
   background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   padding:20px;
-  border-radius:15px;
+  border-radius:16px;
   text-align:center;
+  transition: all 0.3s ease;
+}
+
+.card:hover{
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 0 25px rgba(255,0,128,0.4);
 }
 
 .big{
@@ -77,37 +95,40 @@ canvas{
   padding:10px;
 }
 
-/* 🔥 RESULT SECTION TOP PAR */
+h2{
+  font-size:22px;
+  margin-bottom:15px;
+  background: linear-gradient(90deg,#ff0080,#00c6ff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 .result-box{
   margin-top:30px;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- NAV -->
 <div class="nav">
   <div class="logo">BaseLense</div>
-
   <select>
-    <option>Base 🔵</option>
+    <option>Base</option>
   </select>
 </div>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Base Chain Analytics</h1>
+  <p style="opacity:0.7">Track wallets • Analyze activity • Discover Base trends</p>
+
   <input id="wallet" placeholder="Enter wallet address">
   <br>
   <button onclick="analyze()">Analyze Wallet</button>
 
-  <!-- 🔥 RESULT AB YAHAN SHOW HOGA -->
   <div class="grid result-box" id="results"></div>
 </div>
 
-<!-- NETWORK -->
 <div class="section">
   <h2>Network Overview</h2>
 
@@ -134,7 +155,6 @@ canvas{
   </div>
 </div>
 
-<!-- CHART -->
 <div class="section">
   <h2>Network Activity</h2>
   <canvas id="chart"></canvas>
@@ -143,19 +163,15 @@ canvas{
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
 
 <script>
-
-// NETWORK LOAD
 async function loadNetwork(){
   const provider = new ethers.JsonRpcProvider("https://mainnet.base.org");
-
   const block = await provider.getBlockNumber();
   document.getElementById("block").innerText = block;
-
   document.getElementById("txns").innerText = (block * 120).toLocaleString();
 }
+
 loadNetwork();
 
-// CHART
 new Chart(document.getElementById('chart'), {
   type: 'line',
   data: {
@@ -167,9 +183,7 @@ new Chart(document.getElementById('chart'), {
   }
 });
 
-// ANALYZE
 async function analyze(){
-
   const wallet = document.getElementById("wallet").value;
   if(!wallet) return alert("Enter wallet");
 
@@ -180,12 +194,12 @@ async function analyze(){
 
   const eth = (Number(balance)/1e18).toFixed(4);
 
-  let score="Low ⚠️";
+  let score="Low";
   let tag="New";
 
-  if(tx>100){score="Medium 👀";tag="Active";}
-  if(tx>500){score="High 🔥";tag="Pro";}
-  if(tx>1000){tag="Whale 🐋";}
+  if(tx>100){score="Medium";tag="Active";}
+  if(tx>500){score="High";tag="Pro";}
+  if(tx>1000){tag="Whale";}
 
   document.getElementById("results").innerHTML = `
     <div class="card">Balance<div class="big">${eth} ETH</div></div>
@@ -194,7 +208,6 @@ async function analyze(){
     <div class="card">Wallet Type<div class="big">${tag}</div></div>
   `;
 }
-
 </script>
 
 </body>
